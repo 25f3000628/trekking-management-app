@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-3">Users</h3>
+
+<form method="GET" class="mb-3">
+    <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search users by name or email...">
+</form>
+
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.status }}</td>
+            <td>
+                {% if u.status == "blacklisted" %}
+                    <form method="POST" action="{{ url_for('admin.reinstate_user', user_id=u.id) }}" class="d-inline">
+                        <button class="btn btn-sm btn-outline-success">Reinstate</button>
+                    </form>
+                {% else %}
+                    <form method="POST" action="{{ url_for('admin.blacklist_user', user_id=u.id) }}" class="d-inline"
+                          onsubmit="return confirm('Blacklist this user?');">
+                        <button class="btn btn-sm btn-outline-danger">Blacklist</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted">No users found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('admin.dashboard') }}">&larr; Back to Dashboard</a>
+{% endblock %}

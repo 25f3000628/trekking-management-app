@@ -144,3 +144,105 @@ def delete_trek(trek_id):
     db.session.commit()
     flash("Trek deleted.", "info")
     return redirect(url_for("admin.treks"))
+
+@admin_bp.route("/staff")
+@login_required
+@role_required("admin")
+def staff():
+    tab = request.args.get("tab", "pending")  # pending / approved / blacklisted
+    status_map = {"pending": "pending", "approved": "approved", "blacklisted": "blacklisted"}
+    status = status_map.get(tab, "pending")
+
+    staff_list = User.query.filter_by(role="staff", status=status).order_by(User.id.desc()).all()
+
+    counts = {
+        "pending": User.query.filter_by(role="staff", status="pending").count(),
+        "approved": User.query.filter_by(role="staff", status="approved").count(),
+        "blacklisted": User.query.filter_by(role="staff", status="blacklisted").count(),
+    }
+
+    return render_template("admin/staff.html", staff_list=staff_list, tab=tab, counts=counts)
+
+
+@admin_bp.route("/staff/<int:staff_id>/approve", methods=["POST"])
+@login_required
+@role_required("admin")
+def approve_staff(staff_id):
+    staff_member = User.query.filter_by(id=staff_id, role="staff").first_or_404()
+    staff_member.status = "approved"
+    db.session.commit()
+    flash(f"{staff_member.name} approved.", "success")
+    return redirect(url_for("admin.staff", tab="pending"))
+
+
+@admin_bp.route("/staff/<int:staff_id>/reject", methods=["POST"])
+@login_required
+@role_required("admin")
+def reject_staff(staff_id):
+    staff_member = User.query.filter_by(id=staff_id, role="staff").first_or_404()
+    db.session.delete(staff_member)
+    db.session.commit()
+    flash("Staff request rejected.", "info")
+    return redirect(url_for("admin.staff", tab="pending"))
+
+
+@admin_bp.route("/staff/<int:staff_id>/blacklist", methods=["POST"])
+@login_required
+@role_required("admin")
+def blacklist_staff(staff_id):
+    staff_member = User.query.filter_by(id=staff_id, role="staff").first_or_404()
+    staff_member.status = "blacklisted"
+    # Unassign them from any treks so treks don't stay stuck with a blacklisted staff member
+    Trek.query.filter_by(assigned_staff_id=staff_member.id).update({"assigned_staff_id": None})
+    db.session.commit()
+    flash(f"{staff_member.name} has been blacklisted.", "warning")
+    return redirect(url_for("admin.staff", tab="blacklisted"))
+
+
+@admin_bp.route("/staff/<int:staff_id>/reinstate", methods=["POST"])
+@login_required
+@role_required("admin")
+def reinstate_staff(staff_id):
+    staff_member = User.query.filter_by(id=staff_id, role="staff").first_or_404()
+    staff_member.status = "approved"
+    db.session.commit()
+    flash(f"{staff_member.name} reinstated.", "success")
+    return redirect(url_for("admin.staff", tab="approved"))
+
+
+@admin_bp.route("/users")
+@login_required
+@role_required("admin")
+def users():
+    query = request.args.get("q", "").strip()
+
+    users_query = User.query.filter_by(role="trekker")
+    if query:
+        users_query = users_query.filter(
+            (User.name.ilike(f"%{query}%")) | (User.email.ilike(f"%{query}%"))
+        )
+
+    all_users = users_query.order_by(User.id.desc()).all()
+    return render_template("admin/users.html", users=all_users, query=query)
+
+
+@admin_bp.route("/users/<int:user_id>/blacklist", methods=["POST"])
+@login_required
+@role_required("admin")
+def blacklist_user(user_id):
+    user = User.query.filter_by(id=user_id, role="trekker").first_or_404()
+    user.status = "blacklisted"
+    db.session.commit()
+    flash(f"{user.name} has been blacklisted.", "warning")
+    return redirect(url_for("admin.users"))
+
+
+@admin_bp.route("/users/<int:user_id>/reinstate", methods=["POST"])
+@login_required
+@role_required("admin")
+def reinstate_user(user_id):
+    user = User.query.filter_by(id=user_id, role="trekker").first_or_404()
+    user.status = "active"
+    db.session.commit()
+    flash(f"{user.name} reinstated.", "success")
+    return redirect(url_for("admin.users"))

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-3">Staff Requests</h3>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'pending' %}active{% endif %}" href="{{ url_for('admin.staff', tab='pending') }}">
+            Pending ({{ counts.pending }})
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'approved' %}active{% endif %}" href="{{ url_for('admin.staff', tab='approved') }}">
+            Approved ({{ counts.approved }})
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'blacklisted' %}active{% endif %}" href="{{ url_for('admin.staff', tab='blacklisted') }}">
+            Blacklisted ({{ counts.blacklisted }})
+        </a>
+    </li>
+</ul>
+
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>Staff ID</th><th>Name</th><th>Email</th><th>Contact</th><th>Status</th><th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in staff_list %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.name }}</td>
+            <td>{{ s.email }}</td>
+            <td>{{ s.contact or "-" }}</td>
+            <td>{{ s.status }}</td>
+            <td>
+                {% if tab == "pending" %}
+                    <form method="POST" action="{{ url_for('admin.approve_staff', staff_id=s.id) }}" class="d-inline">
+                        <button class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.reject_staff', staff_id=s.id) }}" class="d-inline"
+                          onsubmit="return confirm('Reject this request?');">
+                        <button class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                {% elif tab == "approved" %}
+                    <form method="POST" action="{{ url_for('admin.blacklist_staff', staff_id=s.id) }}" class="d-inline"
+                          onsubmit="return confirm('Blacklist this staff member?');">
+                        <button class="btn btn-sm btn-outline-danger">Blacklist</button>
+                    </form>
+                {% elif tab == "blacklisted" %}
+                    <form method="POST" action="{{ url_for('admin.reinstate_staff', staff_id=s.id) }}" class="d-inline">
+                        <button class="btn btn-sm btn-outline-success">Reinstate</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted">No staff in this category.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('admin.dashboard') }}">&larr; Back to Dashboard</a>
+{% endblock %}
