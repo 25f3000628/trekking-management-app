@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask_login import LoginManager
 from models import db, User
+from routes.auth_routes import auth_bp
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -31,7 +32,8 @@ def create_app():
     # app.register_blueprint(admin_bp)
     # app.register_blueprint(staff_bp)
     # app.register_blueprint(user_bp)
-
+    
+    app.register_blueprint(auth_bp)
     return app
 
 
