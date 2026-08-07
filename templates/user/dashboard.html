@@ -1,14 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Welcome, {{ current_user.name }}!</h3>
-    <div>
-        <a href="{{ url_for('user.bookings') }}" class="btn btn-outline-primary">My Bookings</a>
-        <a href="{{ url_for('user.history') }}" class="btn btn-outline-primary">History</a>
-        <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary">Profile</a>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Logout</a>
-    </div>
-</div>
+<h3 class="mb-4">Welcome, {{ current_user.name }}!</h3>
 
 <h5>Available Treks</h5>
 <form method="GET" class="row g-2 mb-3">

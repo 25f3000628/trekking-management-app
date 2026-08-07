@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_login import LoginManager
 from models import db, User
 from routes.auth_routes import auth_bp
@@ -40,8 +40,12 @@ def create_app():
     app.register_blueprint(staff_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
-    return app
 
+    @app.route("/")
+    def index():
+        return redirect(url_for("auth.login"))
+
+    return app
 
 if __name__ == "__main__":
     app = create_app()
