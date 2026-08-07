@@ -20,21 +20,11 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = "auth.login"  # blueprint route added in Milestone 2
+    login_manager.login_view = "auth.login"  
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-
-    # Blueprints will be registered here in later milestones:
-    # from routes.auth_routes import auth_bp
-    # from routes.admin_routes import admin_bp
-    # from routes.staff_routes import staff_bp
-    # from routes.user_routes import user_bp
-    # app.register_blueprint(auth_bp)
-    # app.register_blueprint(admin_bp)
-    # app.register_blueprint(staff_bp)
-    # app.register_blueprint(user_bp)
     
     app.register_blueprint(user_bp)   
     app.register_blueprint(staff_bp)

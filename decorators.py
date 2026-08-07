@@ -12,7 +12,6 @@ def role_required(*roles):
                 abort(401)
             if current_user.role not in roles:
                 abort(403)
-            # Staff must be approved before accessing staff routes
             if current_user.role == "staff" and current_user.status != "approved":
                 abort(403)
             return f(*args, **kwargs)

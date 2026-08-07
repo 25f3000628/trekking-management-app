@@ -66,17 +66,14 @@ def book_trek(trek_id):
     check_trekker()
     trek = Trek.query.get_or_404(trek_id)
 
-    # Core rule: only book if trek is Open
     if trek.status != "Open":
         flash("This trek is not open for booking.", "danger")
         return redirect(url_for("user.trek_detail", trek_id=trek.id))
 
-    # Core rule: prevent overbooking
     if trek.available_slots <= 0:
         flash("Sorry, this trek is fully booked.", "danger")
         return redirect(url_for("user.trek_detail", trek_id=trek.id))
 
-    # Prevent duplicate active booking
     existing = Booking.query.filter_by(
         user_id=current_user.id, trek_id=trek.id, status="Booked"
     ).first()
@@ -118,7 +115,7 @@ def cancel_booking(booking_id):
         return redirect(url_for("user.bookings"))
 
     booking.status = "Cancelled"
-    booking.trek.available_slots += 1  # free up the slot
+    booking.trek.available_slots += 1  
     db.session.commit()
 
     flash("Booking cancelled.", "info")

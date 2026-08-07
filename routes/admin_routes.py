@@ -6,7 +6,6 @@ from decorators import role_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
-
 @admin_bp.route("/dashboard")
 @login_required
 @role_required("admin")
@@ -15,11 +14,7 @@ def dashboard():
     total_users = User.query.filter_by(role="trekker").count()
     total_staff = User.query.filter_by(role="staff").count()
     total_bookings = Booking.query.count()
-
-    recent_bookings = (
-        Booking.query.order_by(Booking.booking_date.desc()).limit(5).all()
-    )
-
+    recent_bookings = (Booking.query.order_by(Booking.booking_date.desc()).limit(5).all())
     return render_template(
         "admin/dashboard.html",
         total_treks=total_treks,
@@ -35,23 +30,17 @@ def dashboard():
 @role_required("admin")
 def treks():
     query = request.args.get("q", "").strip()
-
     treks_query = Trek.query
     if query:
-        treks_query = treks_query.filter(
-            (Trek.name.ilike(f"%{query}%")) | (Trek.location.ilike(f"%{query}%"))
-        )
-
+        treks_query = treks_query.filter((Trek.name.ilike(f"%{query}%")) | (Trek.location.ilike(f"%{query}%")))
     all_treks = treks_query.order_by(Trek.id.desc()).all()
     return render_template("admin/treks.html", treks=all_treks, query=query)
-
 
 @admin_bp.route("/treks/add", methods=["GET", "POST"])
 @login_required
 @role_required("admin")
 def add_trek():
     staff_list = User.query.filter_by(role="staff", status="approved").all()
-
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         location = request.form.get("location", "").strip()
@@ -64,7 +53,6 @@ def add_trek():
         end_date = request.form.get("end_date")
         description = request.form.get("description", "").strip()
 
-        # Backend validation
         if not all([name, location, difficulty, duration, slots, start_date, end_date]):
             flash("Please fill all required fields.", "danger")
             return redirect(url_for("admin.add_trek"))
@@ -120,7 +108,7 @@ def edit_trek(trek_id):
         trek.difficulty = request.form.get("difficulty")
         trek.duration_days = int(request.form.get("duration_days"))
         trek.total_slots = int(request.form.get("available_slots"))
-        trek.available_slots = trek.total_slots  # reset if admin changes capacity
+        trek.available_slots = trek.total_slots  
         staff_id = request.form.get("assigned_staff_id") or None
         trek.assigned_staff_id = int(staff_id) if staff_id else None
         trek.status = request.form.get("status")
@@ -149,12 +137,10 @@ def delete_trek(trek_id):
 @login_required
 @role_required("admin")
 def staff():
-    tab = request.args.get("tab", "pending")  # pending / approved / blacklisted
+    tab = request.args.get("tab", "pending") 
     status_map = {"pending": "pending", "approved": "approved", "blacklisted": "blacklisted"}
     status = status_map.get(tab, "pending")
-
     staff_list = User.query.filter_by(role="staff", status=status).order_by(User.id.desc()).all()
-
     counts = {
         "pending": User.query.filter_by(role="staff", status="pending").count(),
         "approved": User.query.filter_by(role="staff", status="approved").count(),
@@ -192,7 +178,6 @@ def reject_staff(staff_id):
 def blacklist_staff(staff_id):
     staff_member = User.query.filter_by(id=staff_id, role="staff").first_or_404()
     staff_member.status = "blacklisted"
-    # Unassign them from any treks so treks don't stay stuck with a blacklisted staff member
     Trek.query.filter_by(assigned_staff_id=staff_member.id).update({"assigned_staff_id": None})
     db.session.commit()
     flash(f"{staff_member.name} has been blacklisted.", "warning")
@@ -218,10 +203,7 @@ def users():
 
     users_query = User.query.filter_by(role="trekker")
     if query:
-        users_query = users_query.filter(
-            (User.name.ilike(f"%{query}%")) | (User.email.ilike(f"%{query}%"))
-        )
-
+        users_query = users_query.filter((User.name.ilike(f"%{query}%")) | (User.email.ilike(f"%{query}%")))
     all_users = users_query.order_by(User.id.desc()).all()
     return render_template("admin/users.html", users=all_users, query=query)
 

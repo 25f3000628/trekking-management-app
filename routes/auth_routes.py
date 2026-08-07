@@ -13,9 +13,8 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
-        role = request.form.get("role")  # 'staff' or 'trekker' only
+        role = request.form.get("role") 
 
-        # Backend validation
         if not all([name, email, password, confirm_password, role]):
             flash("All fields are required.", "danger")
             return redirect(url_for("auth.register"))
@@ -36,7 +35,6 @@ def register():
             flash("An account with this email already exists.", "danger")
             return redirect(url_for("auth.register"))
 
-        # Staff start as 'pending' (need admin approval), trekkers start 'active'
         status = "pending" if role == "staff" else "active"
 
         new_user = User(

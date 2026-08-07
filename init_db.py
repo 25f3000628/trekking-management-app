@@ -5,9 +5,8 @@ from models import db, User
 app = create_app()
 
 with app.app_context():
-    db.create_all()  # creates all tables programmatically — satisfies "no manual DB creation" rule
+    db.create_all()  
 
-    # Seed the one pre-existing Admin, only if it doesn't already exist
     existing_admin = User.query.filter_by(role="admin").first()
     if not existing_admin:
         admin = User(

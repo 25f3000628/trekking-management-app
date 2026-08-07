@@ -38,7 +38,6 @@ def dashboard():
 def manage_trek(trek_id):
     trek = Trek.query.get_or_404(trek_id)
 
-    # Enforce: only the assigned staff member can manage this trek
     if trek.assigned_staff_id != current_user.id:
         abort(403)
 
@@ -60,7 +59,6 @@ def manage_trek(trek_id):
                 return redirect(url_for("staff.manage_trek", trek_id=trek.id))
 
             trek.available_slots = new_slots
-            # Staff can only toggle between Open/Closed, not admin-only statuses
             if new_status in ("Open", "Closed"):
                 trek.status = new_status
 
@@ -74,7 +72,6 @@ def manage_trek(trek_id):
 
         elif action == "mark_completed":
             trek.status = "Completed"
-            # Mark all active bookings for this trek as completed too
             Booking.query.filter_by(trek_id=trek.id, status="Booked").update({"status": "Completed"})
             db.session.commit()
             flash("Trek marked as completed.", "success")
