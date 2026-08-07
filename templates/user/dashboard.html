@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Welcome, {{ current_user.name }}!</h3>
+    <div>
+        <a href="{{ url_for('user.bookings') }}" class="btn btn-outline-primary">My Bookings</a>
+        <a href="{{ url_for('user.history') }}" class="btn btn-outline-primary">History</a>
+        <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Logout</a>
+    </div>
+</div>
+
+<h5>Available Treks</h5>
+<form method="GET" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="difficulty" class="form-select" onchange="this.form.submit()">
+            <option value="">Difficulty: All</option>
+            {% for level in ["Easy", "Moderate", "Hard"] %}
+            <option value="{{ level }}" {% if selected_difficulty == level %}selected{% endif %}>{{ level }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <select name="location" class="form-select" onchange="this.form.submit()">
+            <option value="">Location: All</option>
+            {% for loc in locations %}
+            <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr><th>Trek Name</th><th>Location</th><th>Difficulty</th><th>Duration</th><th>Available Slots</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        {% for trek in treks %}
+        <tr>
+            <td>{{ trek.name }}</td>
+            <td>{{ trek.location }}</td>
+            <td>{{ trek.difficulty }}</td>
+            <td>{{ trek.duration_days }} Days</td>
+            <td>{{ trek.available_slots }}</td>
+            <td><a href="{{ url_for('user.trek_detail', trek_id=trek.id) }}" class="btn btn-sm btn-primary">View / Book</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted">No open treks match your filters.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h5 class="mt-4">My Bookings</h5>
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr><th>Trek Name</th><th>Booking Date</th><th>Status</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        {% for b in my_bookings %}
+        <tr>
+            <td>{{ b.trek.name }}</td>
+            <td>{{ b.booking_date.strftime('%d %b %Y') }}</td>
+            <td>{{ b.status }}</td>
+            <td><a href="{{ url_for('user.bookings') }}" class="btn btn-sm btn-outline-secondary">View Details</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted">No active bookings.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
