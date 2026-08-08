@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<h3 class="mb-4">My Dashboard</h3>
+<h3 class="mb-4">Welcome, {{ current_user.name }}!</h3>
 
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card text-center shadow-sm">
             <div class="card-body">
                 <h6 class="text-muted">Assigned Treks</h6>
-                <h2>{{ assigned_count }}</h2>
+                <h2 style="color: #434040;">{{ assigned_count }}</h2>
             </div>
         </div>
     </div>
@@ -15,7 +15,7 @@
         <div class="card text-center shadow-sm">
             <div class="card-body">
                 <h6 class="text-muted">Total Participants</h6>
-                <h2>{{ total_participants }}</h2>
+                <h2 style="color: #434040;">{{ total_participants }}</h2>
             </div>
         </div>
     </div>
@@ -23,7 +23,7 @@
         <div class="card text-center shadow-sm">
             <div class="card-body">
                 <h6 class="text-muted">Open Treks</h6>
-                <h2>{{ open_treks_count }}</h2>
+                <h2 style="color: #434040;">{{ open_treks_count }}</h2>
             </div>
         </div>
     </div>
