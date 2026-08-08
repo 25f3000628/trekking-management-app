@@ -24,7 +24,6 @@ def dashboard():
         recent_bookings=recent_bookings,
     )
 
-
 @admin_bp.route("/treks")
 @login_required
 @role_required("admin")

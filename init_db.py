@@ -6,7 +6,6 @@ app = create_app()
 
 with app.app_context():
     db.create_all()  
-
     existing_admin = User.query.filter_by(role="admin").first()
     if not existing_admin:
         admin = User(
@@ -21,5 +20,4 @@ with app.app_context():
         print("Admin created: admin@trekapp.com / admin123")
     else:
         print("Admin already exists, skipping seed.")
-
     print("Database initialized at trekking.db")

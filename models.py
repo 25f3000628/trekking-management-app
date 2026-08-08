@@ -4,11 +4,9 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
-
 class User(UserMixin, db.Model):
     """Covers Admin, Trek Staff, and Trekkers via role field."""
     __tablename__ = "users"
-
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -19,14 +17,11 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     assigned_treks = db.relationship("Trek", backref="staff", lazy=True)
     bookings = db.relationship("Booking", backref="trekker", lazy=True)
-
     def __repr__(self):
         return f"<User {self.email} ({self.role})>"
 
-
 class Trek(db.Model):
     __tablename__ = "treks"
-
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     location = db.Column(db.String(120), nullable=False)
@@ -41,19 +36,15 @@ class Trek(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     bookings = db.relationship("Booking", backref="trek", lazy=True)
-
     def __repr__(self):
         return f"<Trek {self.name}>"
 
-
 class Booking(db.Model):
     __tablename__ = "bookings"
-
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     trek_id = db.Column(db.Integer, db.ForeignKey("treks.id"), nullable=False)
     booking_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), nullable=False, default="Booked")  
-
     def __repr__(self):
         return f"<Booking user={self.user_id} trek={self.trek_id}>"
